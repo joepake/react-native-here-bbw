@@ -63,7 +63,7 @@ var iface = {
 // requireNativeComponent.
 const HereMapView = requireNativeComponent('HereMapView', iface);
 
-class MapView extends React.Component {
+class HereMap extends React.Component {
 
   constructor(props) {
     super(props);
@@ -158,4 +158,4 @@ class MapView extends React.Component {
 
 }
 
-module.exports = MapView;
+module.exports = HereMap;
