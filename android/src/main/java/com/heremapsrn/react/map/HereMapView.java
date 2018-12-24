@@ -47,7 +47,7 @@ public class HereMapView extends MapView {
 
                     mapIsReady = true;
 
-                    if (center != null) map.setCenter(mapCenter, Map.Animation.BOW);
+                    if (center != null) map.setCenter(mapCenter, Map.Animation.LINEAR);
 
                     Log.d(TAG, String.format("mapType: %s", mapType));
                     setMapType(mapType);
@@ -83,7 +83,7 @@ public class HereMapView extends MapView {
             double longitude = Double.parseDouble(values[1]);
 
             mapCenter = new GeoCoordinate(latitude, longitude);
-            if (mapIsReady) map.setCenter(mapCenter, Map.Animation.BOW);
+            if (mapIsReady) map.setCenter(mapCenter, Map.Animation.LINEAR);
         } else {
             Log.w(TAG, String.format("Invalid center: %s", center));
         }
