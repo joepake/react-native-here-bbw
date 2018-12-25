@@ -1,12 +1,14 @@
-// MapView.js
+import PropTypes from 'prop-types';
 
-import React, { PropTypes } from 'react';
+import React from 'react';
 import {
   View,
   Button,
   NativeModules,
   requireNativeComponent,
-  findNodeHandle
+  findNodeHandle,
+  NativeEventEmitter
+
 } from 'react-native';
 
 const MAP_TYPES = {
@@ -14,19 +16,9 @@ const MAP_TYPES = {
   SATELLITE: 'satellite',
 };
 
-const MapViewComponent = NativeModules.MapView;
 const UIManager = NativeModules.UIManager;
 
-HereMaps.propTypes = {
-  ...View.propTypes, // include the default view properties
-  style: View.propTypes.style,
-  center: PropTypes.string,
-  mapType: PropTypes.oneOf(Object.values(MAP_TYPES)),
-  initialZoom: PropTypes.number
-};
-
-const HereMapView = requireNativeComponent('HereMapView', HereMaps);
-
+const timer = () => { };
 class HereMaps extends React.Component {
 
   constructor(props) {
@@ -35,58 +27,72 @@ class HereMaps extends React.Component {
     this.state = {
       isReady: false,
       zoomLevel: 15,
-      center: this.props.center
+      center: this.props.center,
+      onTouchEnd: false,
+      lastLocation: null
     };
 
     this._onMapReady = this._onMapReady.bind(this);
   }
 
-  // componentWillUpdate() is invoked immediately before rendering when
-  // new props or state are being received. Use this as an opportunity
-  // to perform preparation before an update occurs. This method is not called
-  // for the initial render.
-  componentWillUpdate(nextProps) {
-  }
-
-  // componentDidMount() is invoked immediately after a component is mounted.
-  // Initialization that requires DOM nodes should go here. If you need to load
-  // data from a remote endpoint, this is a good place to instantiate the
-  // network request. Setting state in this method will trigger a re-rendering.
   componentDidMount() {
     const { isReady } = this.state;
     if (isReady) {
     }
+
+    const EVENT_NAME = new NativeEventEmitter(UIManager);
+    this.subscription = EVENT_NAME.addListener('HERE_MAP_ON_CHANGED',
+      (location) => {
+        this.countdownTimer(location)
+      });
   }
+
+  countdownTimer = (location) => {
+    clearInterval(timer);
+    timer = setInterval(() => {
+      if (this.state.onTouchEnd && this.state.lastLocation != location) {
+        console.log(location)
+        this.setState({ lastLocation: location })
+      }
+      clearInterval(timer);
+    }, 500);
+  }
+
 
   render() {
     return (
+      <View
+        onTouchStart={() => this.setState({ onTouchEnd: false })}
+        onTouchEnd={() => this.setState({ onTouchEnd: true })}
+        style={this.props.style}>
+        <HereMapView
+          style={this.props.style}
+          center={this.props.center}
+          mapType={this.props.mapType}
+          initialZoom={this.props.initialZoom} >
 
-      <HereMapView
-        style={this.props.style}
-        center={this.props.center}
-        mapType={this.props.mapType}
-        initialZoom={this.props.initialZoom} >
+          <View style={{
+            position: 'absolute', top: 10, right: 10,
+            width: 50, height: 120,
+            backgroundColor: 'yellow',
+            justifyContent: 'space-between'
+          }}>
 
-        <View style={{
-          position: 'absolute', top: 10, right: 10,
-          width: 50, height: 120,
-          justifyContent: 'space-between', zIndex: 10
-        }}>
+            <Button
+              title="+"
+              onPress={this.onZoomInPress} />
 
-          <Button
-            title="+"
-            onPress={this.onZoomInPress} />
+            <Button
+              title="-"
+              onPress={this.onZoomOutPress} />
 
-          <Button
-            title="-"
-            onPress={this.onZoomOutPress} />
+            <Button
+              title="o"
+              onPress={this.onSetCenterPress} />
 
-          <Button
-            title="o"
-            onPress={this.onSetCenterPress} />
-
-        </View>
-      </HereMapView>
+          </View>
+        </HereMapView>
+      </View>
     );
   }
 
@@ -121,7 +127,14 @@ class HereMaps extends React.Component {
       UIManager.HereMapView.Commands.setCenter,
       [this.state.center]);
   }
-
 }
+HereMaps.propTypes = {
+  ...View.propTypes, // include the default view properties
+  style: View.propTypes.style,
+  center: PropTypes.string,
+  mapType: PropTypes.oneOf(Object.values(MAP_TYPES)),
+  initialZoom: PropTypes.number
+};
 
+const HereMapView = requireNativeComponent('HereMapView', HereMaps);
 module.exports = HereMaps;

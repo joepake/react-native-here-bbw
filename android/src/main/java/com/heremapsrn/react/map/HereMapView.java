@@ -1,23 +1,18 @@
 package com.heremapsrn.react.map;
 
 import android.content.Context;
-import android.graphics.PointF;
 import android.util.Log;
 
 import com.here.android.mpa.common.GeoCoordinate;
 import com.here.android.mpa.common.MapEngine;
 import com.here.android.mpa.common.OnEngineInitListener;
-import com.here.android.mpa.common.ViewObject;
 import com.here.android.mpa.mapping.Map;
-import com.here.android.mpa.mapping.MapGesture;
 import com.here.android.mpa.mapping.MapMarker;
-import com.here.android.mpa.mapping.MapObject;
 import com.here.android.mpa.mapping.MapState;
 import com.here.android.mpa.mapping.MapView;
 import com.heremapsrn.R;
 
 import java.io.IOException;
-import java.util.List;
 
 public class HereMapView extends MapView {
 
@@ -35,9 +30,11 @@ public class HereMapView extends MapView {
 
     private double zoomLevel = 15;
     private MapMarker currentPin;
+    private HereCallback callback;
 
-    public HereMapView(Context context) {
+    public HereMapView(Context context, HereCallback callback) {
         super(context);
+        this.callback = callback;
 
         MapEngine.getInstance().init(context, new OnEngineInitListener() {
             @Override
@@ -82,15 +79,21 @@ public class HereMapView extends MapView {
         Map.OnTransformListener onTransformListener = new Map.OnTransformListener() {
             @Override
             public void onMapTransformStart() {
-                Log.e("lll", "onTransformListener start");
             }
 
             @Override
             public void onMapTransformEnd(MapState mapState) {
-                Log.e("lll", "onTransformListener end");
+                if(callback != null){
+                    callback.onCallback(getMapCenter());
+                }
             }
         };
         map.addTransformListener(onTransformListener);
+    }
+
+    public LatLng getMapCenter(){
+        GeoCoordinate center = map.getCenter();
+        return new LatLng(center.getLatitude(), center.getLongitude());
     }
 
     @Override
@@ -117,7 +120,7 @@ public class HereMapView extends MapView {
             mapCenter = new GeoCoordinate(latitude, longitude);
             if (mapIsReady && map != null) {
                 map.setCenter(mapCenter, Map.Animation.LINEAR);
-                updateCenterPin(mapCenter);
+//                updateCenterPin(mapCenter);
 
             }
         } else {
