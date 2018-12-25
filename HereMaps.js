@@ -51,13 +51,13 @@ class HereMaps extends React.Component {
     clearInterval(timer);
     timer = setInterval(() => {
       if (this.state.onTouchEnd && this.state.lastLocation != location) {
-        console.log(location)
+        console.log("location = ", location)
+        this.props.onMapChanged(JSON.parse(location))
         this.setState({ lastLocation: location })
       }
       clearInterval(timer);
-    }, 500);
+    }, 50);
   }
-
 
   render() {
     return (
