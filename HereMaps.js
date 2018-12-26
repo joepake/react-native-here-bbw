@@ -56,7 +56,7 @@ class HereMaps extends React.Component {
         this.setState({ lastLocation: location })
       }
       clearInterval(timer);
-    }, 10);
+    }, 100);
   }
 
   render() {
