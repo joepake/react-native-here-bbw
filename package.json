@@ -16,7 +16,7 @@
 		"preset": "react-native"
 	},
 	"devDependencies": {
-    	"react-native": "^0.28.0"
+		"react-native": "^0.28.0"
   	},
 	"keywords": [
 		"react-native", "component", "maps", "HereMaps", "HereMapsRN"

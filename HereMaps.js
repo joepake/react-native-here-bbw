@@ -7,7 +7,8 @@ import {
   NativeModules,
   requireNativeComponent,
   findNodeHandle,
-  NativeEventEmitter
+  NativeEventEmitter,
+  ViewPropTypes
 
 } from 'react-native';
 
@@ -51,12 +52,11 @@ class HereMaps extends React.Component {
     clearInterval(timer);
     timer = setInterval(() => {
       if (this.state.onTouchEnd && this.state.lastLocation != location) {
-        console.log("location = ", location)
         this.props.onMapChanged(JSON.parse(location))
         this.setState({ lastLocation: location })
       }
       clearInterval(timer);
-    }, 50);
+    }, 10);
   }
 
   render() {
@@ -129,8 +129,8 @@ class HereMaps extends React.Component {
   }
 }
 HereMaps.propTypes = {
-  ...View.propTypes, // include the default view properties
-  style: View.propTypes.style,
+  ...ViewPropTypes, // include the default view properties
+  style: ViewPropTypes.style,
   center: PropTypes.string,
   mapType: PropTypes.oneOf(Object.values(MAP_TYPES)),
   initialZoom: PropTypes.number
